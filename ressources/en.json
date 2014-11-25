@@ -2,7 +2,7 @@
 	"config": {
 		"numberMap" : {
 			"1": ["One", 1],
-			"2": ["Two", 2]
+			"2": ["Two", 2, "some", "two"]
 		},
 		"coffeeSize" : {
 			"short" : ["short", "", "my"],
@@ -33,10 +33,10 @@
 	"intent" : {
 		"group":{
 			"coffee_toggle" : "coffee_toggle",
-			"pour" : "pour",
+			"pour" : "CES_coffee_pour",
 			"clean" : "clean",
 			"steam" : "steam",
-			"stop" : "stop"
+			"stop" : "CES_coffee_stop"
 		},
 		"threshold": {
 			"intentBad": 0.3,

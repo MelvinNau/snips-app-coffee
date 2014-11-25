@@ -62,7 +62,7 @@ class CoffeeHack:
             }
 
     @classmethod
-    def __init__(self, extra = False):
+    def __init__(self, lang_config, extra = False):
         arduino_ports = [
                 p.device
                 for p in serial.tools.list_ports.comports()
@@ -82,22 +82,22 @@ class CoffeeHack:
             CoffeeHack.size_d = CoffeeHack.extra_size_d
             CoffeeHack.taste_d = CoffeeHack.extra_taste_d
             CoffeeHack.foam_d = CoffeeHack.extra_foam_d
-        tmp = lang_config.config.get("coffeeSize")
+        tmp = lang_config.config.get_value("coffeeSize")
         for k in tmp:
             for item in tmp[k]:
                 if (k in CoffeeHack.size_d):
                     CoffeeHack.size_d[item] = CoffeeHack.size_d[k]
-        tmp = lang_config.config.get("coffeeType")
+        tmp = lang_config.config.get_value("coffeeType")
         for k in tmp:
             for item in tmp[k]:
                 if (k in CoffeeHack.type_d):
                     CoffeeHack.type_d[item] = CoffeeHack.type_d[k]
-        tmp = lang_config.config.get("coffeeType")
+        tmp = lang_config.config.get_value("coffeeTaste")
         for k in tmp:
             for item in tmp[k]:
-                if (k in CoffeeHack.type_d):
-                    CoffeeHack.type_d[item] = CoffeeHack.type_d[k]
-        tmp = lang_config.config.get("coffeeFoam")
+                if (k in CoffeeHack.taste_d):
+                    CoffeeHack.taste_d[item] = CoffeeHack.taste_d[k]
+        tmp = lang_config.config.get_value("coffeeFoam")
         for k in tmp:
             for item in tmp[k]:
                 if (k in CoffeeHack.foam_d):
@@ -116,22 +116,18 @@ class CoffeeHack:
             coffee_foam = u'min frost'
         if (coffee_type == u'cappuccino' and coffee_foam == u''):
             coffee_foam = u'max frost'
-        tmp_type = CoffeeHack.coffee_type_dict.get(coffee_type,
-                CoffeeHack.coffee_type_dict[u'coffee'])
-        size = CoffeeHack.coffee_size_dict.get(coffee_size,
-                CoffeeHack.coffee_size_dict[u''])
-        taste = CoffeeHack.coffee_taste_dict.get(coffee_taste,
-                CoffeeHack.coffee_taste_dict[u''])
-        foam = CoffeeHack.coffee_foam_dict.get(coffee_foam,
-                CoffeeHack.coffee_foam_dict[u''])
+        tmp_type = CoffeeHack.type_d.get(coffee_type)
+        size = CoffeeHack.size_d.get(coffee_size)
+        taste = CoffeeHack.taste_d.get(coffee_taste)
+        foam = CoffeeHack.foam_d.get(coffee_foam)
         return number + tmp_type * 10 + size * 100 + \
                 taste * 1000 + foam * 10000
     
     @staticmethod
     def is_able(coffee_type, coffee_size, coffee_taste, number):
-        return coffee_type in CoffeeHack.coffee_type_dict
-            and coffee_size not in CoffeeHack.coffee_size_dict
-            and coffee_taste in CoffeeHack.coffee_taste_dict
+        return coffee_type in CoffeeHack.type_d \
+                and coffee_size in CoffeeHack.size_d \
+                and coffee_taste in CoffeeHack.taste_d
 
     @classmethod
     def _stop_serving(self):
@@ -139,31 +135,28 @@ class CoffeeHack:
 
     @classmethod
     def pour(self, coffee_type, coffee_size, coffee_taste, number):
-        coffee_type = coffee_type.encode('utf8')
-        coffee_size = coffee_size.encode('utf8')
-        coffee_taste = coffee_taste.encode('utf8')
         number = max(number, MIN_COFFEE)
         number = min(number, MAX_COFFEE)
         if (not CoffeeHack.is_able(coffee_type, coffee_size, coffee_taste, number)):
             return False
         value = CoffeeHack.compute_value(coffee_type, coffee_size, coffee_taste, number, u'')
         self.is_serving = True
-        self.ser.write('B%dE\n'%(value))
+        self.ser.write(b'B%dE\n'%(value))
         threading.Timer(20.0, self._stop_serving).start()
         return True
 
     def toggle_on_off(self):
-        self.ser.write('T\n')
+        self.ser.write(b'T\n')
 
     def clean(self):
-        self.ser.write('C\n')
+        self.ser.write(b'C\n')
 
     def steam(self):
-        self.ser.write('V\n')
+        self.ser.write(b'V\n')
 
     def stop(self):
         if self.is_serving:
-            self.ser.write('S\n')
+            self.ser.write(b'S\n')
             self.is_serving = False
             return True
         return False

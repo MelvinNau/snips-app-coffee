@@ -10,24 +10,24 @@ class ClientMPU(ClientAction):
         #init intent subscribe 
         self.intent_funcs = [
                 (self.coffee_toggle_callback, "coffee_toggle"),
-                (self.pour_callback, "pour")
-                (self.clean_callback, "clean")
-                (self.steam_callback), "steam")
+                (self.pour_callback, "pour"),
+                (self.clean_callback, "clean"),
+                (self.steam_callback, "steam"),
                 (self.stop_callback, "stop")
                 ]
         self.coffee = coffee
         self.number_map = {}
-        tmp = lang_config.config.get("numberMap")
+        tmp = lang_config.config.get_value("numberMap")
         for k in tmp:
             for item in tmp[k]:
                  self.number_map[item] = int(k)
 
-    def extract_coffee_number(intent_message, confidence):
-        tmp = extract_value(intent_message, "coffee_number")
+    def extract_coffee_number(self, intent_message):
+        tmp = self.extract_value(intent_message, "coffee_number")
         if tmp is not None:
             try:
                 return int(tmp)
-            except ValueError, e:
+            except:
                 return self.number_map.get(tmp, -1)
         return -1
 
@@ -36,21 +36,24 @@ class ClientMPU(ClientAction):
         coffee_type = self.extract_value(intent_message, "coffee_type")
         coffee_size = self.extract_value(intent_message, "coffee_size")
         coffee_taste = self.extract_value(intent_message, "coffee_taste")
-        number = extract_coffee_number(intent_message)
+        number = self.extract_coffee_number(intent_message)
         if (coffee_type is None and coffee_size is None and
                 coffee_taste is None and number != -1):
             return self.config.tts.get_value("nlu_error_slot_soup")
         if (coffee_type is None and coffee_size is not None):
             coffee_type = "coffee"
         number = 1 if number == -1 else number
+        coffee_type = "" if coffee_type is None else coffee_type
+        coffee_size = "" if coffee_size is None else coffee_size
+        coffee_taste = "" if coffee_taste is None else coffee_taste
         if self.coffee.pour(coffee_type = coffee_type, coffee_size = coffee_size,
                 coffee_taste = coffee_taste, number = number):
-                data = {
-                        number : number,
-                        coffee_size : coffee_size,
-                        coffee_taste : coffee_taste,
-                        coffee_type : coffee_type
-                        }
+            data = {
+                    "number" : number,
+                    "coffee_size" : coffee_size,
+                    "coffee_taste" : coffee_taste,
+                    "coffee_type" : coffee_type
+                    }
             if (number == 1):
                 return self.config.tts.get_value("coffee_pour_1").format(**data)
             return self.config.tts.get_value("coffee_pour_2").format(**data)
