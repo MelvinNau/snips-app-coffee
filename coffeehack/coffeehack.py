@@ -71,7 +71,7 @@ class CoffeeHack:
     }
 
     @staticmethod
-    def compute_value(coffee_type, coffee_size, coffee_taste, number,coffe_foam=""):
+    def compute_value(coffee_type, coffee_size, coffee_taste, number,coffee_foam=""):
         if (coffee_type == u'ristretto'):
             coffee_size = u'short'
         if (coffee_type == u'expresso'):
