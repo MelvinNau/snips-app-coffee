@@ -1,10 +1,12 @@
 # coding: utf8
-import time
 import os
 from os.path import expanduser
 import subprocess
-import sys
 import serial
+import serial.tools.list_ports
+import sys
+import time
+import warnings
 
 MAX_COFFEE = 2
 MIN_COFFEE = 1
@@ -104,11 +106,19 @@ class CoffeeHack:
                 taste * 1000 + foam * 10000
     @classmethod
     def __init__(self, locale = "EN_US"):
+        arduino_ports = [
+                    p.device
+                        for p in serial.tools.list_ports.comports()
+                        for x in range (0, 10)
+                        if 'ttyUSB%d' % x  in p.name or "ttyACM%d" % x in p.name]
+        if not arduino_ports:
+                raise IOError("No Arduino found")
+        if len(arduino_ports) > 1:
+                warnings.warn('Multiple Arduinos found - using the first')
         self.ser = serial.Serial(
-                            port='/dev/ttyACM0',
+                            port=arduino_ports[0],
                             baudrate = 9600
                         )
-        pass
 
     @classmethod
     def pour(self, coffee_type, coffee_size, coffee_taste, number):
