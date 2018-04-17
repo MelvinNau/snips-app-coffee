@@ -21,7 +21,11 @@ intents:
       snips.skill.pour(coffee_type = coffee_type,
                 coffee_size = coffee_size,
                 coffee_taste = coffee_taste,
-                number = number)
+                number = number,
+                dialogue = snips.dialogue)
       %}
   - intent: coffee_toggle
-    action: toggle_on_off
+    action: |
+      {%
+      snips.skill.toggle_on_off(snips.dialogue)
+      %}

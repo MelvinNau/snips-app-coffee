@@ -121,7 +121,7 @@ class CoffeeHack:
                         )
 
     @classmethod
-    def pour(self, coffee_type, coffee_size, coffee_taste, number):
+    def pour(self, coffee_type, coffee_size, coffee_taste, number, dialogue):
         coffee_type =coffee_type.encode('utf8')
         coffee_size =coffee_size.encode('utf8')
         coffee_taste =coffee_taste.encode('utf8')
@@ -132,33 +132,15 @@ class CoffeeHack:
         print(coffee_size)
         value = CoffeeHack.compute_value(coffee_type, coffee_size, coffee_taste, number, u'')
         print(value)
-        #size = CoffeeHack.coffee_size_dict[coffee_size]
         self.ser.write('B%dE\n'%(value))
-        """
-        text_value = ""
-        if (number == 1):
-            if (size == 3 or size == 4):
-                text_value = "long"
-            else:
-                text_value = "coffee"
-        else:
-            if (size == 3 or size == 4):
-                text_value = "longx2"
-            else:
-                text_value = "coffeex2"
-        dir = expanduser("/home/pi") + u'/rm3_mini_controller/'
-        if (not os.path.isdir(dir)):
-            return
-        print(text_value)
-        p = subprocess.Popen(['python', u'BlackBeanControl.py', '-c', text_value], cwd=dir)
-        p.wait()
-        """
-        time.sleep(20)
-        return
+        if (dialogue is not None):
+            dialogue.end_session(None)
 
 
-    def toggle_on_off(self):
+    def toggle_on_off(self, dialogue):
         self.ser.write('B10000E\n')
+        if (dialogue is not None):
+            dialogue.end_session(None)
 
 if (__name__ == "__main__"):
     c = CoffeeHack();
