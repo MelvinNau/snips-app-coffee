@@ -18,35 +18,39 @@ class Skill:
 
 def extract_coffee_taste(intent_message):
     res = []
-    if intent_message.slots.coffe_taste is not None:
-        for r in intent_message.slots.taste:
+    if intent_message.slots.coffee_taste is not None:
+        for r in intent_message.slots.coffee_taste:
             res.append(r.slot_value.value.value)
     return res
 
 def extract_coffee_number(intent_message):
     res = []
-    if intent_message.slots.coffe_number is not None:
-        for r in intent_message.slots.number:
+    if intent_message.slots.coffee_number is not None:
+        for r in intent_message.slots.coffee_number:
             res.append(r.slot_value.value.value)
     return res
 def extract_coffee_type(intent_message):
     res = []
-    if intent_message.slots.coffe_type is not None:
-        for r in intent_message.slots.type:
+    if intent_message.slots.coffee_type is not None:
+        for r in intent_message.slots.coffee_type:
             res.append(r.slot_value.value.value)
     return res
 def extract_coffee_size(intent_message):
     res = []
-    if intent_message.slots.coffe_size is not None:
-        for r in intent_message.slots.size:
+    if intent_message.slots.coffee_size is not None:
+        for r in intent_message.slots.coffee_size:
             res.append(r.slot_value.value.value)
     return res
 
 def callback(hermes, intent_message):
     t = extract_coffee_type(intent_message)
-    s = extract_coffee_type(intent_message)
-    ta = extract_coffee_type(intent_message)
-    n = extract_coffee_type(intent_message)
+    s = extract_coffee_size(intent_message)
+    ta = extract_coffee_taste(intent_message)
+    n = extract_coffee_number(intent_message)
+    coffee_type = ""
+    coffee_size = ""
+    coffee_taste = ""
+    number = 1
     if len(t):
         coffee_type = t[0]
     if len(s):
@@ -55,18 +59,21 @@ def callback(hermes, intent_message):
         coffee_taste = ta[0]
     if len(n):
         number = int(n[0])
+    print(t)
+    print(s)
+    print(ta)
     hermes.skill.coffee.pour(coffee_type = coffee_type,
                 coffee_size = coffee_size,
                 coffee_taste = coffee_taste,
-                number = number,
-                dialogue = snips.dialogue)
+                number = number)
 
 def coffee_toggle(hermes, intent_message):
-      hermes.skill.coffee.toggle_on_off(snips.dialogue)
+      hermes.skill.coffee.toggle_on_off()
 
 if __name__ == "__main__":
     skill = Skill()
     with Hermes(MQTT_ADDR) as h:
         h.skill = skill
-        h.subscribe_intent("akaisuisei:print", callback) \
+        h.subscribe_intent("airstream_project:pour", callback) \
+                .subscribe_intent("airstream_project:coffee_toggle", coffee_toggle) \
          .loop_forever()
