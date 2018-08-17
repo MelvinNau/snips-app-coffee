@@ -14,7 +14,7 @@ MQTT_ADDR = "{}:{}".format(MQTT_IP_ADDR, str(MQTT_PORT))
 class Skill:
 
     def __init__(self):
-        self.coffee = CoffeeHack()
+        self.coffee = CoffeeHack(extra=False)
 
 def extract_coffee_taste(intent_message):
     res = []

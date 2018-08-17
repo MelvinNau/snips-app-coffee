@@ -13,7 +13,7 @@ MIN_COFFEE = 1
 
 class CoffeeHack:
 
-    coffee_size_dict = {
+    extra_size_dict = {
         u'standard': 2,
         u'normal': 2,
         u'': 1,
@@ -26,11 +26,23 @@ class CoffeeHack:
         u'extra allongé'.encode('utf8'): 4,
         u'extra long': 4,
 }
+    coffee_size_dict = {
+        u'standard': 1,
+        u'normal': 1,
+        u'': 1,
+        u'mon' : 1,
+        u'my': 1,
+        u'court': 1,
+        u'short': 1,
+        u'allongé'.encode('utf8'): 2,
+        u'long': 2,
+        u'extra allongé'.encode('utf8'): 2,
+        u'extra long': 2,
+}
     """
     ok
     """
-
-    coffee_type_dict = {
+    extra_type_dict = {
         u'': 9,
         u'café'.encode('utf8'): 9,
         u'coffee': 9,
@@ -48,9 +60,41 @@ class CoffeeHack:
         u'milk' : 2,
         u'frothed milk' : 2,
     }
+
+    coffee_type_dict = {
+        u'': 9,
+        u'café'.encode('utf8'): 9,
+        u'coffee': 9,
+        u'expresso': 9,
+        u'ristretto': 9,
+        u'cappuccino' : 9,
+        u'flat white' : 9,
+        u'Flat White' : 9,
+        u'café au lait'.encode('utf8'):90,
+        u'lattee machiato' : 9,
+        u'latte machiato' : 9,
+        u'macchiato' : 9,
+        u'machiato' : 9,
+        u'latte': 9,
+        u'milk' : 9,
+        u'frothed milk' : 9,
+    }
     """
     ok
     """
+    extra_taste_dict = {
+        u'normal': 1,
+        u'standard': 1,
+        u'': 1,
+        u'extra-léger'.encode('utf8'): 0,
+        u'extra mild':0,
+        u'léger': 0,
+        u'mild': 0,
+        u'fort': 2,
+        u'strong': 2,
+        u'extra-fort': 3,
+        u'extra-strong': 3
+    }
 
     coffee_taste_dict = {
         u'normal': 1,
@@ -68,11 +112,17 @@ class CoffeeHack:
     """
     ok
     """
-    coffee_foam_dict ={
+    extra_foam_dict ={
         u"": 0,
         u"no frost": 1,
-        u"min frost":2,
-        u"max frost":3
+        u"min frost": 2,
+        u"max frost": 3
+    }
+    coffee_foam_dict ={
+        u"": 0,
+        u"no frost": 0,
+        u"min frost": 0,
+        u"max frost": 0
     }
 
     @staticmethod
@@ -92,8 +142,8 @@ class CoffeeHack:
             coffee_foam = u'min frost'
         if (coffee_type == u'cappuccino' and coffee_foam == u''):
             coffee_foam = u'max frost'
-        #print("preparing: %i %s %s %s" % (number, coffee_type, coffee_size,
-        #                                      coffee_taste))
+        print("preparing: %i %s %s %s" % (number, coffee_type, coffee_size,
+                                              coffee_taste))
         if (coffee_type not in CoffeeHack.coffee_type_dict):
             coffee_type = ""
         if (coffee_size not in CoffeeHack.coffee_size_dict):
@@ -110,7 +160,7 @@ class CoffeeHack:
         return number + tmp_type * 10 + size * 100 + \
                 taste * 1000 + foam * 10000
     @classmethod
-    def __init__(self, locale = "EN_US"):
+    def __init__(self, locale = "EN_US", extra = False):
         arduino_ports = [
                     p.device
                         for p in serial.tools.list_ports.comports()
@@ -124,6 +174,11 @@ class CoffeeHack:
                             port=arduino_ports[0],
                             baudrate = 9600
                         )
+        if (extra):
+            CoffeeHack.coffee_type_dict = CoffeeHack.extra_type_dict
+            CoffeeHack.coffee_size_dict = CoffeeHack.extra_size_dict
+            CoffeeHack.coffee_taste_dict = CoffeeHack.extra_taste_dict
+            CoffeeHack.coffee_foam_dict = CoffeeHack.extra_foam_dict
 
     @classmethod
     def pour(self, coffee_type, coffee_size, coffee_taste, number):
