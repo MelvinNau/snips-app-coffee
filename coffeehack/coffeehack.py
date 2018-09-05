@@ -144,19 +144,14 @@ class CoffeeHack:
             coffee_foam = u'max frost'
         print("preparing: %i %s %s %s" % (number, coffee_type, coffee_size,
                                               coffee_taste))
-        if (coffee_type not in CoffeeHack.coffee_type_dict):
-            coffee_type = ""
-        if (coffee_size not in CoffeeHack.coffee_size_dict):
-            coffee_size = ""
-        if (coffee_taste not in CoffeeHack.coffee_taste_dict):
-            coffee_taste = ""
-        if (coffee_foam not in CoffeeHack.coffee_foam_dict):
-            coffee_foam = ""
-        tmp_type = CoffeeHack.coffee_type_dict[coffee_type]
-        size = CoffeeHack.coffee_size_dict[coffee_size]
-        taste = CoffeeHack.coffee_taste_dict[coffee_taste]
-        foam = CoffeeHack.coffee_foam_dict[coffee_foam]
-        #return [number, tmp_type, size, taste, foam]
+        tmp_type = CoffeeHack.coffee_type_dict.get(coffee_type,
+                                                CoffeeHack.coffee_type_dict[u''])
+        size = CoffeeHack.coffee_size_dict.get(coffee_size,
+                                                CoffeeHack.coffee_size_dict[u''])
+        taste = CoffeeHack.coffee_taste_dict.get(coffee_taste,
+                                                CoffeeHack.coffee_taste_dict[u''])
+        foam = CoffeeHack.coffee_foam_dict.get(coffee_foam,
+                                                CoffeeHack.coffee_foam_dict[u''])
         return number + tmp_type * 10 + size * 100 + \
                 taste * 1000 + foam * 10000
     @classmethod

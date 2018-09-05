@@ -34,47 +34,34 @@ class Skill:
         extra = config["global"].get("extra", False)
         self.coffee = CoffeeHack(extra = extra)
 
-def extract_coffee_taste(intent_message):
+def extract_value(val):
     res = []
-    if intent_message.slots.coffee_taste is not None:
-        for r in intent_message.slots.coffee_taste:
+    if val is not None:
+        for r in val:
             res.append(r.slot_value.value.value)
     return res
 
+def extract_coffee_taste(intent_message):
+    return extract_value(intent_message.slots.coffee_taste)
+
 def extract_coffee_number(intent_message):
-    res = []
-    if intent_message.slots.coffee_number is not None:
-        for r in intent_message.slots.coffee_number:
-            res.append(r.slot_value.value.value)
-    return res
+    return extract_value(intent_message.slots.coffee_number)
+
 def extract_coffee_type(intent_message):
-    res = []
-    if intent_message.slots.coffee_type is not None:
-        for r in intent_message.slots.coffee_type:
-            res.append(r.slot_value.value.value)
-    return res
+    return extract_value(intent_message.slots.coffee_type)
+
 def extract_coffee_size(intent_message):
-    res = []
-    if intent_message.slots.coffee_size is not None:
-        for r in intent_message.slots.coffee_size:
-            res.append(r.slot_value.value.value)
-    return res
+    return extract_value(intent_message.slots.coffee_size)
 
 def callback(hermes, intent_message):
     t = extract_coffee_type(intent_message)
     s = extract_coffee_size(intent_message)
     ta = extract_coffee_taste(intent_message)
     n = extract_coffee_number(intent_message)
-    coffee_type = ""
-    coffee_size = ""
-    coffee_taste = ""
+    coffee_type = t[0] if len(t) else ""
+    coffee_size = s[0] if len(s) else ""
+    coffee_taste = ta[0] if len(ta) else ""
     number = 1
-    if len(t):
-        coffee_type = t[0]
-    if len(s):
-        coffee_size = s[0]
-    if len(ta):
-        coffee_taste = ta[0]
     if len(n):
         try:
             number = int(n[0])
