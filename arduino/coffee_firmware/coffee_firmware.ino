@@ -167,8 +167,15 @@ void touch_x1_long() {
  * simulate push button for cleaning
  */
 void touch_clean() {
-  Serial.println("touch rince\n");
+  Serial.println("touch clean\n");
   touch_button(clean);
+}
+/*
+ * simulate push button for cleaning
+ */
+void touch_vape() {
+  Serial.println("touch vape\n");
+  touch_button(vape);
 }
 
 /*
@@ -211,6 +218,12 @@ void start_coffee(unsigned int type) {
     switch (special) {
       case 1:
         onoff();
+        return;
+      case 2:
+        touch_clean();
+        return;
+      case 3:
+        touch_vape();
         return;
     }
   } else if (coffee_type == 9) {

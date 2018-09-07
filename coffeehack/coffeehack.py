@@ -191,6 +191,10 @@ class CoffeeHack:
 
     def toggle_on_off(self):
         self.ser.write('B10000E\n')
+    def clean(self):
+        self.ser.write('B20000E\n')
+    def steam(self):
+        self.ser.write('B30000E\n')
 
 if (__name__ == "__main__"):
     c = CoffeeHack();

@@ -77,11 +77,17 @@ def callback(hermes, intent_message):
 
 def coffee_toggle(hermes, intent_message):
       hermes.skill.coffee.toggle_on_off()
+def coffee_clean(hermes, intent_message):
+      hermes.skill.coffee.clean()
+def coffee_steam(hermes, intent_message):
+      hermes.skill.coffee.steam()
 
 if __name__ == "__main__":
     skill = Skill()
     with Hermes(MQTT_ADDR) as h:
         h.skill = skill
-        h.subscribe_intent("airstream_project:pour", callback) \
-                .subscribe_intent("airstream_project:coffee_toggle", coffee_toggle) \
+        h.subscribe_intent("pour", callback) \
+                .subscribe_intent("coffee_toggle", coffee_toggle) \
+                .subscribe_intent("clean", coffee_clean) \
+                .subscribe_intent("steam", coffee_steam) \
          .loop_forever()
