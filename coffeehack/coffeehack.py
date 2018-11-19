@@ -43,7 +43,6 @@ class CoffeeHack:
     ok
     """
     extra_type_dict = {
-        u'': 9,
         u'café'.encode('utf8'): 9,
         u'coffee': 9,
         u'expresso': 9,
@@ -62,22 +61,10 @@ class CoffeeHack:
     }
 
     coffee_type_dict = {
-        u'': 9,
         u'café'.encode('utf8'): 9,
         u'coffee': 9,
         u'expresso': 9,
         u'ristretto': 9,
-        u'cappuccino' : 9,
-        u'flat white' : 9,
-        u'Flat White' : 9,
-        u'café au lait'.encode('utf8'):90,
-        u'lattee machiato' : 9,
-        u'latte machiato' : 9,
-        u'macchiato' : 9,
-        u'machiato' : 9,
-        u'latte': 9,
-        u'milk' : 9,
-        u'frothed milk' : 9,
     }
     """
     ok
@@ -118,11 +105,8 @@ class CoffeeHack:
         u"min frost": 2,
         u"max frost": 3
     }
+
     coffee_foam_dict ={
-        u"": 0,
-        u"no frost": 0,
-        u"min frost": 0,
-        u"max frost": 0
     }
 
     @staticmethod
@@ -182,11 +166,7 @@ class CoffeeHack:
         coffee_taste =coffee_taste.encode('utf8')
         number = max(number, MIN_COFFEE)
         number = min(number, MAX_COFFEE)
-        print(coffee_type)
-        print(coffee_taste)
-        print(coffee_size)
         value = CoffeeHack.compute_value(coffee_type, coffee_size, coffee_taste, number, u'')
-        print(value)
         self.ser.write('B%dE\n'%(value))
 
     def toggle_on_off(self):

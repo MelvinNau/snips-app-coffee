@@ -1,0 +1,5 @@
+[global]
+extra=false
+[secret]
+coffee_broker_ip=
+coffee_broker_port=

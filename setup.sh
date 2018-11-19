@@ -17,5 +17,9 @@ fi
 
 . $VENV/bin/activate
 
+if [ ! -e "./config.ini" ]
+then
+            cp config.ini.default config.ini
+fi
 
 pip install -r requirements.txt
