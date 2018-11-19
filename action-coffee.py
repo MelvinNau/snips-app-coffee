@@ -6,6 +6,7 @@ from coffeehack.coffeehack import CoffeeHack
 from hermes_python.hermes import Hermes
 import io
 import Queue
+import time
 
 CONFIGURATION_ENCODING_FORMAT = "utf-8"
 CONFIG_INI = "config.ini"
@@ -24,6 +25,7 @@ def read_configuration_file(configuration_file):
         return dict()
 
 def extract_value(val):
+    #TODO use all
     res = []
     if val is not None:
         for r in val:
@@ -57,31 +59,52 @@ def pour_callback(hermes, intent_message):
     coffee_size = extract_coffee_size(intent_message)
     coffee_taste = extract_coffee_taste(intent_message)
     number = extract_coffee_number(intent_message)
-    print("pourring: {} {} {} {}".format(number,
-                                        coffee_type,
-                                        coffee_taste,
-                                        coffee_size))
-    hermes.skill.pour(coffee_type = coffee_type,
+    done = hermes.skill.pour(coffee_type = coffee_type,
                 coffee_size = coffee_size,
                 coffee_taste = coffee_taste,
                 number = number)
+    if done:
+        #TODO add TTS Serving
+        print("pourring: {} {} {} {}".format(number,
+                                        coffee_type,
+                                        coffee_taste,
+                                        coffee_size))
+    else:
+        #TODO Error
+        print("ERROR pourring: {} {} {} {}".format(number,
+                                        coffee_type,
+                                        coffee_taste,
+                                        coffee_size))
 
 def coffee_toggle_callback(hermes, intent_message):
     print("toggle On or Off Coffee")
+    #TODO add TTS Now the coffee machine is turned On
     hermes.skill.toggle_on_off()
 
 def clean_callback(hermes, intent_message):
     print("Clean Coffee Machine")
+    #TODO add TTS Now in steaming Mode
     hermes.skill.clean()
 
 def steam_callback(hermes, intent_message):
     print("Steam coffee machine")
+    #TODO add TTS Now in steaming Mode
     hermes.skill.steam()
+
+def stop_callback(hermes, intent_message):
+    print("Stop coffee machine")
+    if hermes.skill.stop():
+        #TODO add TTS  OK, I've stop stopped preparing your coffee
+        pass
+    else:
+        #TODO close session
+        pass
 
 intents = [ ("coffee_toggle",  coffee_toggle_callback),
             ("pour", pour_callback),
             ("clean", clean_callback),
-            ("steam", steam_callback)]
+            ("steam", steam_callback),
+            ("stop", stop_callback)]
 
 if __name__ == "__main__":
     config = read_configuration_file(CONFIG_INI)
@@ -90,18 +113,32 @@ if __name__ == "__main__":
     port = config.get("secret", {"coffee_broker_port": 1883})\
             .get("coffee_broker_port")
     extra = config["global"].get("extra", False)
-    if (extra is None or extra == ""):
+    if (extra is None or extra == "" or extra == "False" or extra == "false" or extra == "0"):
         extra = False
     if (addr is None or addr == ""):
         addr = "localhost"
     if (port is None or port == 0 or port  == ""):
         port = 1883
     broker = "{}:{}".format(addr, port)
+    print("coffe maker {}".format(extra))
     print("Subscribe on {}".format(broker))
-
     with Hermes(broker) as h:
-        h.skill = CoffeeHack(extra = extra)
-        for intent in intents:
-            h.subscribe_intent(intent[0], intent[1]) 
-            print("Subscribe to: {}".format(intent[0]))
-        h.loop_forever()
+        h.skill = None
+        for x in range(3):
+            try:
+                h.skill = CoffeeHack(extra = extra)
+            except:
+                #TODO add TTS connect the usb cable
+                print("connect Coffee machine, Please")
+                time.sleep(30 * x)
+            else:
+                break
+        if h.skill is None:
+            #TODO add TTS disable skill
+            pass
+        else:
+            for intent in intents:
+                h.subscribe_intent(intent[0], intent[1]) 
+                print("Subscribe to: {}".format(intent[0]))
+            #TODO add TTS ready to make a coffee
+            h.loop_forever()

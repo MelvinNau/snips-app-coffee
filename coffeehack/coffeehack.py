@@ -6,6 +6,7 @@ import serial
 import serial.tools.list_ports
 import sys
 import time
+import threading
 import warnings
 
 MAX_COFFEE = 2
@@ -107,6 +108,7 @@ class CoffeeHack:
     }
 
     coffee_foam_dict ={
+        u"": 0,
     }
 
     @staticmethod
@@ -126,10 +128,8 @@ class CoffeeHack:
             coffee_foam = u'min frost'
         if (coffee_type == u'cappuccino' and coffee_foam == u''):
             coffee_foam = u'max frost'
-        print("preparing: %i %s %s %s" % (number, coffee_type, coffee_size,
-                                              coffee_taste))
         tmp_type = CoffeeHack.coffee_type_dict.get(coffee_type,
-                                                CoffeeHack.coffee_type_dict[u''])
+                                                CoffeeHack.coffee_type_dict[u'coffee'])
         size = CoffeeHack.coffee_size_dict.get(coffee_size,
                                                 CoffeeHack.coffee_size_dict[u''])
         taste = CoffeeHack.coffee_taste_dict.get(coffee_taste,
@@ -138,6 +138,15 @@ class CoffeeHack:
                                                 CoffeeHack.coffee_foam_dict[u''])
         return number + tmp_type * 10 + size * 100 + \
                 taste * 1000 + foam * 10000
+
+    @staticmethod
+    def is_able(coffee_type, coffee_size, coffee_taste, number):
+        if coffee_type not in CoffeeHack.coffee_type_dict:
+            return False
+        if coffee_size not in CoffeeHack.coffee_size_dict:
+            return False
+        return coffee_taste in CoffeeHack.coffee_taste_dict
+
     @classmethod
     def __init__(self, locale = "EN_US", extra = False):
         arduino_ports = [
@@ -150,7 +159,7 @@ class CoffeeHack:
         if len(arduino_ports) > 1:
                 warnings.warn('Multiple Arduinos found - using the first')
         self.ser = serial.Serial(
-                            port=arduino_ports[0],
+                            port = arduino_ports[0],
                             baudrate = 9600
                         )
         if (extra):
@@ -158,23 +167,40 @@ class CoffeeHack:
             CoffeeHack.coffee_size_dict = CoffeeHack.extra_size_dict
             CoffeeHack.coffee_taste_dict = CoffeeHack.extra_taste_dict
             CoffeeHack.coffee_foam_dict = CoffeeHack.extra_foam_dict
+        self.is_serving = False
+
+    @classmethod
+    def _stop_serving(self):
+        self.is_serving = False
 
     @classmethod
     def pour(self, coffee_type, coffee_size, coffee_taste, number):
-        coffee_type =coffee_type.encode('utf8')
-        coffee_size =coffee_size.encode('utf8')
-        coffee_taste =coffee_taste.encode('utf8')
+        coffee_type = coffee_type.encode('utf8')
+        coffee_size = coffee_size.encode('utf8')
+        coffee_taste = coffee_taste.encode('utf8')
         number = max(number, MIN_COFFEE)
         number = min(number, MAX_COFFEE)
+        if (not CoffeeHack.is_able(coffee_type, coffee_size, coffee_taste, number)):
+            return False
         value = CoffeeHack.compute_value(coffee_type, coffee_size, coffee_taste, number, u'')
         self.ser.write('B%dE\n'%(value))
+        threading.Timer(20.0, self._stop_serving).start()
+        return True
 
     def toggle_on_off(self):
         self.ser.write('B10000E\n')
+
     def clean(self):
         self.ser.write('B20000E\n')
+
     def steam(self):
         self.ser.write('B30000E\n')
+
+    def stop(self):
+        if self.is_serving:
+            self.ser.write('B30000E\n')
+            return True
+        return False
 
 if (__name__ == "__main__"):
     c = CoffeeHack();
