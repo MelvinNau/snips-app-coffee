@@ -47,6 +47,7 @@ class CoffeeHack:
         u'café'.encode('utf8'): 9,
         u'coffee': 9,
         u'expresso': 9,
+        u'espresso': 9,
         u'ristretto': 9,
         u'cappuccino' : 8,
         u'flat white' : 0,
@@ -64,6 +65,7 @@ class CoffeeHack:
     coffee_type_dict = {
         u'café'.encode('utf8'): 9,
         u'coffee': 9,
+        u'espresso': 9,
         u'expresso': 9,
         u'ristretto': 9,
     }

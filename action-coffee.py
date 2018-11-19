@@ -25,40 +25,53 @@ def read_configuration_file(configuration_file):
         return dict()
 
 def extract_value(val):
-    #TODO use all
     res = []
     if val is not None:
         for r in val:
-            res.append(r.slot_value.value.value)
+            res.append((r.slot_value.value.value, r.confidence))
     return res
 
-def extract_coffee_taste(intent_message):
-    ta = extract_value(intent_message.slots.coffee_taste)
-    return ta[0] if len(ta) else ""
+def extract_coffee_taste(intent_message, confidence):
+    tmp = extract_value(intent_message.slots.coffee_taste)
+    if len(tmp) and tmp[0][1] > confidence:
+        return tmp[0][0]
+    return ""
 
-def extract_coffee_number(intent_message):
-    n = extract_value(intent_message.slots.coffee_number)
+def extract_coffee_number(intent_message, confidence):
+    tmp = extract_value(intent_message.slots.coffee_number)
     number = 1
-    if len(n):
+    if len(tmp) and tmp[0][1] > confidence:
         try:
-            number = int(n[0])
+            number = int(tmp[0][0])
         except ValueError, e:
             number = 2
     return number
 
-def extract_coffee_type(intent_message):
-    t = extract_value(intent_message.slots.coffee_type)
-    return t[0] if len(t) else ""
+def extract_coffee_type(intent_message, confidence):
+    tmp = extract_value(intent_message.slots.coffee_type)
+    if len(tmp) and tmp[0][1] > confidence:
+        return tmp[0][0]
+    return ""
 
-def extract_coffee_size(intent_message):
-    s = extract_value(intent_message.slots.coffee_size)
-    return s[0] if len(s) else ""
+def extract_coffee_size(intent_message, confidence):
+    tmp = extract_value(intent_message.slots.coffee_size)
+    if len(tmp) and tmp[0][1] > confidence:
+        return tmp[0][0]
+    return ""
 
 def pour_callback(hermes, intent_message):
-    coffee_type = extract_coffee_type(intent_message)
-    coffee_size = extract_coffee_size(intent_message)
-    coffee_taste = extract_coffee_taste(intent_message)
-    number = extract_coffee_number(intent_message)
+    coffee_type = extract_coffee_type(intent_message, 0.5)
+    coffee_size = extract_coffee_size(intent_message, 0.5)
+    coffee_taste = extract_coffee_taste(intent_message, 0.5)
+    number = extract_coffee_number(intent_message, 0.5)
+    probability = intent_message.intent.probability
+    if probability < 0.5:
+        #TODO add TTS Proba
+        print("Really?: {} {} {} {}".format(number,
+                                        coffee_type,
+                                        coffee_taste,
+                                        coffee_size))
+        return
     done = hermes.skill.pour(coffee_type = coffee_type,
                 coffee_size = coffee_size,
                 coffee_taste = coffee_taste,
@@ -77,21 +90,40 @@ def pour_callback(hermes, intent_message):
                                         coffee_size))
 
 def coffee_toggle_callback(hermes, intent_message):
+    probability = intent_message.intent.probability
+    if probability < 0.5:
+        #TODO add TTS Proba
+        print("Really? toggle")
+        return
     print("toggle On or Off Coffee")
     #TODO add TTS Now the coffee machine is turned On
     hermes.skill.toggle_on_off()
 
 def clean_callback(hermes, intent_message):
+    probability = intent_message.intent.probability
+    if probability < 0.5:
+        #TODO add TTS Proba
+        print("Really? Clean")
+        return
     print("Clean Coffee Machine")
     #TODO add TTS Now in steaming Mode
     hermes.skill.clean()
 
 def steam_callback(hermes, intent_message):
+    probability = intent_message.intent.probability
+    if probability < 0.5:
+        #TODO add TTS Proba
+        print("Really? steam")
+        return
     print("Steam coffee machine")
     #TODO add TTS Now in steaming Mode
     hermes.skill.steam()
 
 def stop_callback(hermes, intent_message):
+    if probability < 0.5:
+        #TODO add TTS Proba
+        print("Really? stop")
+        return
     print("Stop coffee machine")
     if hermes.skill.stop():
         #TODO add TTS  OK, I've stop stopped preparing your coffee
