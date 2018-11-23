@@ -40,7 +40,7 @@ def extract_coffee_taste(intent_message, confidence):
 
 def extract_coffee_number(intent_message, confidence):
     tmp = extract_value(intent_message.slots.coffee_number)
-    number = 1
+    number = -1
     if len(tmp) and tmp[0][1] > confidence:
         try:
             number = int(tmp[0][0])
@@ -81,17 +81,26 @@ def check_proba(_func=None, min_proba=0.3
 @check_proba
 @check_proba(min_proba = 0.6, tts = "Sorry, I don't think I understood")
 def pour_callback(hermes, intent_message):
-    coffee_type = extract_coffee_type(intent_message, 0.5)
-    coffee_size = extract_coffee_size(intent_message, 0.5)
-    coffee_taste = extract_coffee_taste(intent_message, 0.5)
-    number = extract_coffee_number(intent_message, 0.5)
-    probability = intent_message.intent.probability
+    coffee_type = extract_coffee_type(intent_message, 0.6)
+    coffee_size = extract_coffee_size(intent_message, 0.6)
+    coffee_taste = extract_coffee_taste(intent_message, 0.6)
+    number = extract_coffee_number(intent_message, 0.6)
+    if (coffee_type != "" or coffee_size != "" or
+            coffee_taste != "" or coffee_number != -1):
+        coffee_type = extract_coffee_type(intent_message, 0)
+        coffee_size = extract_coffee_size(intent_message, 0)
+        coffee_taste = extract_coffee_taste(intent_message, 0)
+        number = extract_coffee_number(intent_message, 0)
+    if (coffee_type == "" and coffee_size != ""):
+        coffee_type = "coffee"
     done = hermes.skill.pour(coffee_type = coffee_type,
                 coffee_size = coffee_size,
                 coffee_taste = coffee_taste,
                 number = number)
     res = None
     if done:
+        if(number == -1):
+            number = 1
         res = "serving {} {} {} {}".format(number,
                 coffee_size,
                 coffee_taste if coffee_taste != "normal" else "",
