@@ -7,6 +7,7 @@ from hermes_python.hermes import Hermes
 import io
 import Queue
 import time
+import functools
 
 CONFIGURATION_ENCODING_FORMAT = "utf-8"
 CONFIG_INI = "config.ini"
@@ -59,19 +60,33 @@ def extract_coffee_size(intent_message, confidence):
         return tmp[0][0]
     return ""
 
+def check_proba(_func=None, min_proba=0.3
+        , tts = "Sorry, I don't know how to help you",
+        action_resume = False):
+    def decorator_repeat(func):
+        @functools.wraps(func)
+        def wrapper_repeat(hermes, intent_message):
+            print(tts)
+            probability = intent_message.intent.probability
+            if action_resume or probability > min_proba:
+                return func(hermes, intent_message)
+            else:
+                hermes.publish_end_session(intent_message.session_id, tts)
+                return None
+        return wrapper_repeat
+    if _func is None:
+        return decorator_repeat
+    else:
+        return decorator_repeat(_func)
+
+@check_proba
+@check_proba(min_proba = 0.6, tts = "Sorry, I don't think I understood")
 def pour_callback(hermes, intent_message):
     coffee_type = extract_coffee_type(intent_message, 0.5)
     coffee_size = extract_coffee_size(intent_message, 0.5)
     coffee_taste = extract_coffee_taste(intent_message, 0.5)
     number = extract_coffee_number(intent_message, 0.5)
     probability = intent_message.intent.probability
-    if probability < 0.5:
-        #TODO add TTS Proba
-        print("Really?: {} {} {} {}".format(number,
-                                        coffee_type,
-                                        coffee_taste,
-                                        coffee_size))
-        return
     done = hermes.skill.pour(coffee_type = coffee_type,
                 coffee_size = coffee_size,
                 coffee_taste = coffee_taste,
@@ -89,41 +104,31 @@ def pour_callback(hermes, intent_message):
                                         coffee_taste,
                                         coffee_size))
 
+@check_proba
+@check_proba(min_proba = 0.6, tts = "Sorry, I don't think I understood")
 def coffee_toggle_callback(hermes, intent_message):
-    probability = intent_message.intent.probability
-    if probability < 0.5:
-        #TODO add TTS Proba
-        print("Really? toggle")
-        return
     print("toggle On or Off Coffee")
     #TODO add TTS Now the coffee machine is turned On
     hermes.skill.toggle_on_off()
 
+@check_proba
+@check_proba(min_proba = 0.6, tts = "Sorry, I don't think I understood")
 def clean_callback(hermes, intent_message):
-    probability = intent_message.intent.probability
-    if probability < 0.5:
-        #TODO add TTS Proba
-        print("Really? Clean")
-        return
     print("Clean Coffee Machine")
     #TODO add TTS Now in steaming Mode
     hermes.skill.clean()
 
+@check_proba
+@check_proba(min_proba = 0.6, tts = "Sorry, I don't think I understood")
 def steam_callback(hermes, intent_message):
-    probability = intent_message.intent.probability
-    if probability < 0.5:
-        #TODO add TTS Proba
-        print("Really? steam")
-        return
     print("Steam coffee machine")
     #TODO add TTS Now in steaming Mode
     hermes.skill.steam()
 
+@check_proba
+@check_proba(min_proba = 0.6, tts = "Sorry, I don't think I understood",
+        action_resume = True)
 def stop_callback(hermes, intent_message):
-    if probability < 0.5:
-        #TODO add TTS Proba
-        print("Really? stop")
-        return
     print("Stop coffee machine")
     if hermes.skill.stop():
         #TODO add TTS  OK, I've stop stopped preparing your coffee
