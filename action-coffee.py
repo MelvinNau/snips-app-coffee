@@ -66,7 +66,6 @@ def check_proba(_func=None, min_proba=0.3
     def decorator_repeat(func):
         @functools.wraps(func)
         def wrapper_repeat(hermes, intent_message):
-            print(tts)
             probability = intent_message.intent.probability
             if action_resume or probability > min_proba:
                 return func(hermes, intent_message)
@@ -91,38 +90,39 @@ def pour_callback(hermes, intent_message):
                 coffee_size = coffee_size,
                 coffee_taste = coffee_taste,
                 number = number)
+    res = None
     if done:
-        #TODO add TTS Serving
-        print("pourring: {} {} {} {}".format(number,
-                                        coffee_type,
-                                        coffee_taste,
-                                        coffee_size))
+        res = "serving {} {} {} {}".format(number,
+                coffee_size,
+                coffee_taste if coffee_taste != "normal" else "",
+                coffee_type + "s"  if coffee_type != "" and number == 2\
+                        else coffee_type
+                )
     else:
-        #TODO Error
-        print("ERROR pourring: {} {} {} {}".format(number,
-                                        coffee_type,
-                                        coffee_taste,
-                                        coffee_size))
+        res = "Sorry, we currently do variety of coffees, Check the list to see\
+                 what you can order"
+    print(res)
+    hermes.publish_end_session(intent_message.session_id, res)
 
 @check_proba
 @check_proba(min_proba = 0.6, tts = "Sorry, I don't think I understood")
 def coffee_toggle_callback(hermes, intent_message):
     print("toggle On or Off Coffee")
-    #TODO add TTS Now the coffee machine is turned On
+    hermes.publish_end_session(intent_message.session_id, "OK")
     hermes.skill.toggle_on_off()
 
 @check_proba
 @check_proba(min_proba = 0.6, tts = "Sorry, I don't think I understood")
 def clean_callback(hermes, intent_message):
     print("Clean Coffee Machine")
-    #TODO add TTS Now in steaming Mode
+    hermes.publish_end_session(intent_message.session_id, "stopping")
     hermes.skill.clean()
 
 @check_proba
 @check_proba(min_proba = 0.6, tts = "Sorry, I don't think I understood")
 def steam_callback(hermes, intent_message):
     print("Steam coffee machine")
-    #TODO add TTS Now in steaming Mode
+    hermes.publish_end_session(intent_message.session_id, "Steaming")
     hermes.skill.steam()
 
 @check_proba
@@ -131,10 +131,10 @@ def steam_callback(hermes, intent_message):
 def stop_callback(hermes, intent_message):
     print("Stop coffee machine")
     if hermes.skill.stop():
-        #TODO add TTS  OK, I've stop stopped preparing your coffee
-        pass
+        hermes.publish_end_session(intent_message.session_id,
+                "OK, stopping")
     else:
-        #TODO close session
+        hermes.publish_end_session(intent_message.session_id, "")
         pass
 
 intents = [ ("coffee_toggle",  coffee_toggle_callback),
