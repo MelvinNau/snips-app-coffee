@@ -9,4 +9,18 @@ pour=pour
 clean=clean
 steam=steam
 stop=stop
-
+[TTS]
+ready= ["Ready to make a wonderful coffee"]
+error_cable = ["connect Coffee machine, Please"]
+error_disable= ["Disabling, Coffee machine"]
+nlu_error= ["Sorry, I don't know how to help you with that"]
+nlu_error_low= ["Sorry, I don't know how to help you with that"]
+nlu_error_intent_midle= ["Sorry, I don't think I've understood"]
+nlu_error_slot_low= ["Sorry, not sure I got what type of coffee you wanted. Can you please try again"]
+nlu_error_slot_soup= ["Sorry, we currently only do a variety of coffees. Check the list to see what you can order"]
+coffee_stop= ["OK STOPING"]
+coffee_no_stop= [""]
+coffee_toggle= ["OK"]
+coffee_pour_single= ["Serving {number} {coffee_size} {coffee_taste} {coffee_type}"]
+coffee_pour_two= ["Serving {number} {coffee_size} {coffee_taste} {coffee_type}s"]
+coffee_pour_two_no_taste= ["Serving {number} {coffee_size} {coffee_taste} {coffee_type}s"]
