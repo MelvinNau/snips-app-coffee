@@ -3,3 +3,10 @@ extra=0
 [secret]
 coffee_broker_ip=
 coffee_broker_port=
+[intents]
+coffee_toggle=coffee_toggle
+pour=pour
+clean=clean
+steam=steam
+stop=stop
+

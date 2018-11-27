@@ -146,11 +146,6 @@ def stop_callback(hermes, intent_message):
         hermes.publish_end_session(intent_message.session_id, "")
         pass
 
-intents = [ ("coffee_toggle",  coffee_toggle_callback),
-            ("pour", pour_callback),
-            ("clean", clean_callback),
-            ("steam", steam_callback),
-            ("stop", stop_callback)]
 
 if __name__ == "__main__":
     config = read_configuration_file(CONFIG_INI)
@@ -165,6 +160,19 @@ if __name__ == "__main__":
         addr = "localhost"
     if (port is None or port == 0 or port  == ""):
         port = 1883
+    intents_list = config.get("intents")
+    if (intents_list is not None):
+        intents = [ (intents_list.get("coffee_toggle", "coffee_toggle"),  coffee_toggle_callback),
+                (intents_list.get("pour", "pour"), pour_callback),
+                (intents_list.get("clean", "clean"), clean_callback),
+                (intents_list.get("steam", "steam"), steam_callback),
+                (intents_list.get("stop", "stop"), stop_callback)]
+    else:
+        intents = [ ("coffee_toggle",  coffee_toggle_callback),
+                ("pour", pour_callback),
+                ("clean", clean_callback),
+                ("steam", steam_callback),
+                ("stop", stop_callback)]
     broker = "{}:{}".format(addr, port)
     print("coffe maker {}".format(extra))
     print("Subscribe on {}".format(broker))
