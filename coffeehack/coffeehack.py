@@ -184,6 +184,7 @@ class CoffeeHack:
         if (not CoffeeHack.is_able(coffee_type, coffee_size, coffee_taste, number)):
             return False
         value = CoffeeHack.compute_value(coffee_type, coffee_size, coffee_taste, number, u'')
+        self.is_serving = True
         self.ser.write('B%dE\n'%(value))
         threading.Timer(20.0, self._stop_serving).start()
         return True
@@ -200,6 +201,7 @@ class CoffeeHack:
     def stop(self):
         if self.is_serving:
             self.ser.write('B191E\n')
+            self.is_serving = False
             return True
         return False
 

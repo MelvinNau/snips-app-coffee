@@ -61,7 +61,10 @@ def extract_coffee_number(intent_message, confidence):
         try:
             number = int(tmp[0][0])
         except ValueError, e:
-            number = 2
+            if tmp[0][0] == "One":
+                number = 1
+            else:
+                number = 2
     return number
 
 def extract_coffee_type(intent_message, confidence):
