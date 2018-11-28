@@ -140,7 +140,6 @@ class CoffeeHack:
                                                 CoffeeHack.coffee_foam_dict[u''])
         return number + tmp_type * 10 + size * 100 + \
                 taste * 1000 + foam * 10000
-
     @staticmethod
     def is_able(coffee_type, coffee_size, coffee_taste, number):
         if coffee_type not in CoffeeHack.coffee_type_dict:
@@ -200,9 +199,12 @@ class CoffeeHack:
 
     def stop(self):
         if self.is_serving:
-            self.ser.write('B30000E\n')
+            self.ser.write('B191E\n')
             return True
         return False
+
+    def is_pourring(self):
+        return self.is_serving
 
 if (__name__ == "__main__"):
     c = CoffeeHack();

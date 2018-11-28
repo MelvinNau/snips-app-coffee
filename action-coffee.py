@@ -108,6 +108,16 @@ def pour_callback(hermes, intent_message):
         coffee_size = extract_coffee_size(intent_message, 0)
         coffee_taste = extract_coffee_taste(intent_message, 0)
         number = extract_coffee_number(intent_message, 0)
+    else:
+        if (hermes.last_continue_session_id == intent_message.session_id):
+            res = random.choice(hermes.tts_coffee[NLU_ERROR_SLOT_SOUP])
+            hermes.publish_end_session(intent_message.session_id, res)
+        else:
+            res = random.choice(hermes.tts_coffee[NLU_ERROR_SLOT_LOW])
+            hermes.publish_continue_session(intent_message.session_id,
+                    res, [intent_message.intent.intent_name])
+            hermes.last_continue_session_id = intent_message.session_id
+        return
     if (coffee_type == "" and coffee_size != ""):
         coffee_type = "coffee"
     done = hermes.skill.pour(coffee_type = coffee_type,
@@ -126,10 +136,22 @@ def pour_callback(hermes, intent_message):
                 coffee_size=coffee_size,
                 coffee_taste = coffee_taste if coffee_taste != "normal" else "",
                 coffee_type = coffee_type)
+        hermes.last_session_id = intent_message.session_id
     else:
         res = random.choice(hermes.tts_coffee[NLU_ERROR_SLOT_SOUP])
     print(res)
     hermes.publish_end_session(intent_message.session_id, res)
+    #hermes.publish_continue_session( intent_message.session_id,
+    #            None, [hermes.intent_name_stop])
+
+def intent_not_reconized_callback(hermes, intent_message):
+    if (hermes.last_session_id != intent_message.session_id):
+        return
+    if (hermes.skill.is_pourring()):
+        hermes.publish_continue_session( intent_message.session_id,
+                    None, [hermes.intent_name_stop])
+    else:
+        hermes.publish_end_session(intent_message.session_id, None)
 
 @check_proba
 @check_proba(min_proba = 0.6, tts = NLU_ERROR_INTENT_MIDLE)
@@ -232,22 +254,27 @@ if __name__ == "__main__":
     print("Subscribe on {}".format(broker))
     with Hermes(broker) as h:
         h.skill = None
+        h.intent_name_stop = config.get("intents").get("stop")
         h.tts_coffee = create_tts(config)
+        h.last_continue_session_id  = ""
+        h.last_session_id = ""
         for x in range(3):
             try:
                 h.skill = CoffeeHack(extra = extra)
             except:
-                #TODO add TTS connect the usb cable
+                h.publish_start_session_notification("default",
+                        "Please connect the coffee Machine", None)
                 print("connect Coffee machine, Please")
                 time.sleep(30 * x)
             else:
                 break
         if h.skill is None:
-            #TODO add TTS disable skill
-            pass
+            h.publish_start_session_notification("default",
+                        "Coffee Machine is disable", None)
         else:
             for intent in intents:
                 h.subscribe_intent(intent[0], intent[1]) 
                 print("Subscribe to: {}".format(intent[0]))
-            #TODO add TTS ready to make a coffee
+            h.publish_start_session_notification("default",
+                        "Coffee Machine is Ready", None)
             h.loop_forever()
