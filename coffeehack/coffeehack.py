@@ -190,17 +190,17 @@ class CoffeeHack:
         return True
 
     def toggle_on_off(self):
-        self.ser.write('B10000E\n')
+        self.ser.write('T\n')
 
     def clean(self):
-        self.ser.write('B20000E\n')
+        self.ser.write('C\n')
 
     def steam(self):
-        self.ser.write('B30000E\n')
+        self.ser.write('V\n')
 
     def stop(self):
         if self.is_serving:
-            self.ser.write('B191E\n')
+            self.ser.write('S\n')
             self.is_serving = False
             return True
         return False
