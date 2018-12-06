@@ -211,7 +211,7 @@ def create_tts(config):
     res = {}
     if (tts_list is not None):
         for k in tts_list.keys():
-            res[k] = json.loads(tts_list[k])
+            res[k] = json.loads("[" + tts_list[k] + "]")
         pass
     default = {
                 READY: ["Ready to make a wonderful coffee"],
