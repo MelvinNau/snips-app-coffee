@@ -183,13 +183,15 @@ def steam_callback(hermes, intent_message):
         action_resume = True)
 def stop_callback(hermes, intent_message):
     print("Stop coffee machine")
+    res = ""
+    list_ = []
     if hermes.skill.stop():
-        hermes.publish_end_session(intent_message.session_id,
-                random.choice(hermes.tts_coffee[COFFEE_STOP]))
+        list_ = hermes.tts_coffee[COFFEE_STOP]
     else:
-        hermes.publish_end_session(intent_message.session_id,
-                random.choice(hermes.tts_coffee[COFFEE_NO_STOP]))
-        pass
+        list_ = hermes.tts_coffee[COFFEE_NO_STOP]
+    if list_ is not None and len(list_):
+        res = random.choice(list_)
+    hermes.publish_end_session(intent_message.session_id, res)
 
 def create_intent(config):
     intents_list = config.get("intents")
