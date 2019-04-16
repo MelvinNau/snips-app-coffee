@@ -1,3 +1,4 @@
 *.pyc
 *swp
 config.ini
+*/hermes_demo_helper.egg-info/*

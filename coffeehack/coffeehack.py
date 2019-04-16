@@ -13,106 +13,96 @@ MAX_COFFEE = 2
 MIN_COFFEE = 1
 
 class CoffeeHack:
+    extra_foam_d ={
+            "" : 0,
+            "no frost" : 1,
+            "min frost" : 2,
+            "max frost" : 3
+            }
+    extra_size_d = {
+            'short' : 1,
+            'standard' : 2,
+            'long' : 3,
+            'extra long' : 4
+            }
 
-    extra_size_dict = {
-        u'standard': 2,
-        u'normal': 2,
-        u'': 1,
-        u'mon' : 1,
-        u'my': 1,
-        u'court': 1,
-        u'short': 1,
-        u'allongé'.encode('utf8'): 3,
-        u'long': 3,
-        u'extra allongé'.encode('utf8'): 4,
-        u'extra long': 4,
-}
-    coffee_size_dict = {
-        u'standard': 1,
-        u'normal': 1,
-        u'': 1,
-        u'mon' : 1,
-        u'my': 1,
-        u'court': 1,
-        u'short': 1,
-        u'allongé'.encode('utf8'): 2,
-        u'long': 2,
-        u'extra allongé'.encode('utf8'): 2,
-        u'extra long': 2,
-}
-    """
-    ok
-    """
-    extra_type_dict = {
-        u'café'.encode('utf8'): 9,
-        u'coffee': 9,
-        u'expresso': 9,
-        u'espresso': 9,
-        u'ristretto': 9,
-        u'cappuccino' : 8,
-        u'flat white' : 0,
-        u'Flat White' : 0,
-        u'café au lait'.encode('utf8'): 0,
-        u'lattee machiato' : 1,
-        u'latte machiato' : 1,
-        u'macchiato' : 1,
-        u'machiato' : 1,
-        u'latte': 2,
-        u'milk' : 2,
-        u'frothed milk' : 2,
-    }
+    extra_type_d = {
+            'flat white' : 0,
+            'machiato' : 1,
+            'latte' : 2,
+            'coffee' : 9,
+            'cappuccino' : 8
+            }
+    extra_taste_d = {
+            "standard" : 1,
+            "mild" : 0,
+            "strong" : 2,
+            "extra-strong" : 3
+            }
+    
+    size_d = {
+            'short' : 1,
+            'standard' : 1,
+            'long' : 2,
+            'extra long': 2
+            }
+    type_d = {
+            'coffee' : 9
+            }
 
-    coffee_type_dict = {
-        u'café'.encode('utf8'): 9,
-        u'coffee': 9,
-        u'espresso': 9,
-        u'expresso': 9,
-        u'ristretto': 9,
-    }
-    """
-    ok
-    """
-    extra_taste_dict = {
-        u'normal': 1,
-        u'standard': 1,
-        u'': 1,
-        u'extra-léger'.encode('utf8'): 0,
-        u'extra mild':0,
-        u'léger': 0,
-        u'mild': 0,
-        u'fort': 2,
-        u'strong': 2,
-        u'extra-fort': 3,
-        u'extra-strong': 3
-    }
+    taste_d = {
+            'standard' : 1,
+            'mild' : 0,
+            'strong' : 2,
+            'extra-strong' : 3
+            }
 
-    coffee_taste_dict = {
-        u'normal': 1,
-        u'standard': 1,
-        u'': 1,
-        u'extra-léger'.encode('utf8'): 0,
-        u'extra mild':0,
-        u'léger': 0,
-        u'mild': 0,
-        u'fort': 2,
-        u'strong': 2,
-        u'extra-fort': 3,
-        u'extra-strong': 3
-    }
-    """
-    ok
-    """
-    extra_foam_dict ={
-        u"": 0,
-        u"no frost": 1,
-        u"min frost": 2,
-        u"max frost": 3
-    }
+    foam_d ={
+            u"" : 0
+            }
 
-    coffee_foam_dict ={
-        u"": 0,
-    }
-
+    @classmethod
+    def __init__(self, extra = False):
+        arduino_ports = [
+                p.device
+                for p in serial.tools.list_ports.comports()
+                for x in range (0, 10)
+                if 'ttyUSB%d' % x  in p.name or "ttyACM%d" % x in p.name]
+        if not arduino_ports:
+            raise IOError("No Arduino found")
+        if len(arduino_ports) > 1:
+            warnings.warn('Multiple Arduinos found - using the first')
+        self.ser = serial.Serial(
+                port = arduino_ports[0],
+                baudrate = 9600
+                )
+        self.is_serving = False
+        if (extra):
+            CoffeeHack.type_d = CoffeeHack.extra_type_d
+            CoffeeHack.size_d = CoffeeHack.extra_size_d
+            CoffeeHack.taste_d = CoffeeHack.extra_taste_d
+            CoffeeHack.foam_d = CoffeeHack.extra_foam_d
+        tmp = lang_config.config.get("coffeeSize")
+        for k in tmp:
+            for item in tmp[k]:
+                if (k in CoffeeHack.size_d):
+                    CoffeeHack.size_d[item] = CoffeeHack.size_d[k]
+        tmp = lang_config.config.get("coffeeType")
+        for k in tmp:
+            for item in tmp[k]:
+                if (k in CoffeeHack.type_d):
+                    CoffeeHack.type_d[item] = CoffeeHack.type_d[k]
+        tmp = lang_config.config.get("coffeeType")
+        for k in tmp:
+            for item in tmp[k]:
+                if (k in CoffeeHack.type_d):
+                    CoffeeHack.type_d[item] = CoffeeHack.type_d[k]
+        tmp = lang_config.config.get("coffeeFoam")
+        for k in tmp:
+            for item in tmp[k]:
+                if (k in CoffeeHack.foam_d):
+                    CoffeeHack.foam_d[item] = CoffeeHack.foam_d[k]
+    
     @staticmethod
     def compute_value(coffee_type, coffee_size, coffee_taste, number,coffee_foam=""):
         if (coffee_type == u'ristretto'):
@@ -120,55 +110,28 @@ class CoffeeHack:
         if (coffee_type == u'expresso'):
             coffee_taste = u'strong'
             coffee_size = u'short'
-        if (coffee_type == u'latte' and coffee_foam == u''):
+        if (coffee_type == u'latte' or coffee_type == u'milk' and coffee_foam == u''):
             coffee_foam = u'no frost'
-        if (coffee_type == u'milk' and coffee_foam ==u''):
-            coffee_foam = u'no frost'
-        if (coffee_type == u'macchiato' and coffee_foam == u''):
-            coffee_foam = u'min frost'
-        if (coffee_type == u'Flat White' and coffee_foam == u''):
+        if (coffee_type == u'macchiato' or coffee_type == u'Flat White'  and coffee_foam == u''):
             coffee_foam = u'min frost'
         if (coffee_type == u'cappuccino' and coffee_foam == u''):
             coffee_foam = u'max frost'
         tmp_type = CoffeeHack.coffee_type_dict.get(coffee_type,
-                                                CoffeeHack.coffee_type_dict[u'coffee'])
+                CoffeeHack.coffee_type_dict[u'coffee'])
         size = CoffeeHack.coffee_size_dict.get(coffee_size,
-                                                CoffeeHack.coffee_size_dict[u''])
+                CoffeeHack.coffee_size_dict[u''])
         taste = CoffeeHack.coffee_taste_dict.get(coffee_taste,
-                                                CoffeeHack.coffee_taste_dict[u''])
+                CoffeeHack.coffee_taste_dict[u''])
         foam = CoffeeHack.coffee_foam_dict.get(coffee_foam,
-                                                CoffeeHack.coffee_foam_dict[u''])
+                CoffeeHack.coffee_foam_dict[u''])
         return number + tmp_type * 10 + size * 100 + \
                 taste * 1000 + foam * 10000
+    
     @staticmethod
     def is_able(coffee_type, coffee_size, coffee_taste, number):
-        if coffee_type not in CoffeeHack.coffee_type_dict:
-            return False
-        if coffee_size not in CoffeeHack.coffee_size_dict:
-            return False
-        return coffee_taste in CoffeeHack.coffee_taste_dict
-
-    @classmethod
-    def __init__(self, locale = "EN_US", extra = False):
-        arduino_ports = [
-                    p.device
-                        for p in serial.tools.list_ports.comports()
-                        for x in range (0, 10)
-                        if 'ttyUSB%d' % x  in p.name or "ttyACM%d" % x in p.name]
-        if not arduino_ports:
-                raise IOError("No Arduino found")
-        if len(arduino_ports) > 1:
-                warnings.warn('Multiple Arduinos found - using the first')
-        self.ser = serial.Serial(
-                            port = arduino_ports[0],
-                            baudrate = 9600
-                        )
-        if (extra):
-            CoffeeHack.coffee_type_dict = CoffeeHack.extra_type_dict
-            CoffeeHack.coffee_size_dict = CoffeeHack.extra_size_dict
-            CoffeeHack.coffee_taste_dict = CoffeeHack.extra_taste_dict
-            CoffeeHack.coffee_foam_dict = CoffeeHack.extra_foam_dict
-        self.is_serving = False
+        return coffee_type in CoffeeHack.coffee_type_dict
+            and coffee_size not in CoffeeHack.coffee_size_dict
+            and coffee_taste in CoffeeHack.coffee_taste_dict
 
     @classmethod
     def _stop_serving(self):

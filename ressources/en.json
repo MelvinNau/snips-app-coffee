@@ -1,0 +1,79 @@
+{
+	"config": {
+		"numberMap" : {
+			"1": ["One", 1],
+			"2": ["Two", 2]
+		},
+		"coffeeSize" : {
+			"short" : ["short", "", "my"],
+			"standard": ["standard", "normal"],
+			"long" : ["long"],
+			"extra long" : ["extra long"]
+		},
+		"coffeeType" : {
+			"flat white" : ["flat white", "Flat White"],
+			"machiato" : ["machiato", "lattee machiato", "latte machiato", "macchiato"],
+			"latte": ["milk", "latte", "frothed milk"],
+			"cappuccino" : ["cappucino"],
+			"coffee": ["coffee", "espresso", "expresso", "ristretto"]
+		},
+		"coffeeTaste" : {
+			"standard" : ["normal", "", "standard"],
+			"mild" : ["extra mild", "mild"],
+			"strong" : ["strong"],
+			"extra-strong" : ["extra-strong"]
+		},
+		"coffeeFoam" : {
+			"" : [""],
+			"no frost" : ["no frost"],
+			"min frost" : ["min frost"],
+			"max frost" : ["max frost"]
+		}
+	},
+	"intent" : {
+		"group":{
+			"coffee_toggle" : "coffee_toggle",
+			"pour" : "pour",
+			"clean" : "clean",
+			"steam" : "steam",
+			"stop" : "stop"
+		},
+		"threshold": {
+			"intentBad": 0.3,
+			"intentGood": 0.6
+		}
+	},
+	"tts": { 
+		"Ready" : "Ready to make a wonderful coffee",
+		"error_cable" : "connect Coffee machine, Please",
+		"error_disable" : "Disabling, Coffee machine",
+		"nlu_error_slot_soup" : "Sorry, we currently only do a variety of coffees",
+		"coffee_stop" : "OK STOPING",
+		"coffee_no_stop" : "",
+		"coffee_toggle" : "OK",
+		"coffee_pour_1" : "Serving {number} {coffee_size} {coffee_taste} {coffee_type}",
+		"coffee_pour_2" : "Serving {number} {coffee_size} {coffee_taste} {coffee_type}s",
+		"ErrorIntentBad" : "Sorry, I don't know how to help you with that",
+		"ErrorIntentGood" : "Sorry, I dont think I understood",
+		"steaming" : "steaming",
+		"cleaning" : "cleaning"
+	},
+	"slot": {
+		"coffee_number" : {
+			"threshold" : 0.3,
+			"name" : "coffee_number"
+		},
+		"coffee_taste": {
+			"threshold": 0.3,
+			"name" : "coffee_taste"
+		},
+		"coffee_type": {
+			"threshold": 0.3,
+			"name" : "coffee_type"
+		},
+		"coffee_size": {
+			"threshold": 0.3,
+			"name" : "coffee_size"
+		}
+	}
+}
