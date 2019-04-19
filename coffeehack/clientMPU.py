@@ -50,6 +50,7 @@ class ClientMPU(ClientAction):
                 coffee_taste = coffee_taste, number = number):
             data = {
                     "number" : number,
+                    "test": "test",
                     "coffee_size" : coffee_size,
                     "coffee_taste" : coffee_taste,
                     "coffee_type" : coffee_type
